@@ -31,7 +31,9 @@ dependencies {
     api rootProject.ext.dependencies["rxjava"]
     api rootProject.ext.dependencies["rxandroid"]
     api rootProject.ext.dependencies["rxbinding"]
-//    api rootProject.ext.dependencies["rxbinding-support-v4"]
+//    api rootProject.ext.dependencies["rxlifecycle"]
+//    api rootProject.ext.dependencies["rxlifecycle-android"]
+    api rootProject.ext.dependencies["rxbinding-support-v4"]
 
     api rootProject.ext.dependencies["fastjson"]
     api rootProject.ext.dependencies["retrofit"]
@@ -49,10 +51,12 @@ dependencies {
     api rootProject.ext.dependencies["design"]
 //    api rootProject.ext.dependencies["multidex"]
     api rootProject.ext.dependencies["annotations"]
+    //glide
+    api rootProject.ext.dependencies["glide"]
+    api rootProject.ext.dependencies["glide-transformations"]
     //recyclerview的databinding套装
     api rootProject.ext.dependencies["bindingcollectionadapter"]
     api rootProject.ext.dependencies["bindingcollectionadapter-recyclerview"]
-
 
 //    api rootProject.ext.dependencies["dagger"]
 //    api rootProject.ext.dependencies["dagger-compiler"]

@@ -12,6 +12,7 @@ public class App extends BaseApp implements Thread.UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
+        //todo 全局try catch处理
 
     }
 }

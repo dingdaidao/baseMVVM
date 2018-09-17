@@ -66,8 +66,10 @@ public abstract class BaseFragment<V extends ViewDataBinding, VM extends BaseVie
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (mDispose != null && !mDispose.isDisposed())
+        if (mDispose != null && !mDispose.isDisposed()) {
             mDispose.dispose();
+            mDispose = null;
+        }
         if (mViewModel != null) {
             mViewModel.onDestroy();
         }
@@ -86,8 +88,6 @@ public abstract class BaseFragment<V extends ViewDataBinding, VM extends BaseVie
                 dealWithAction(event);
             }
         });
-
-
     }
 
 
@@ -177,7 +177,6 @@ public abstract class BaseFragment<V extends ViewDataBinding, VM extends BaseVie
 
     @Override
     public void onDetach() {
-
         super.onDetach();
     }
 
@@ -185,7 +184,6 @@ public abstract class BaseFragment<V extends ViewDataBinding, VM extends BaseVie
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
-
         if (hidden) {
 
         } else {

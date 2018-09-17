@@ -45,6 +45,7 @@ public final class CustomGsonConverterFactory extends Converter.Factory {
     }
 
     public Converter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Retrofit retrofit) {
+        //如果type为string，则吧response直接返回，自己处理
         if (type == String.class) {
             return (Converter<ResponseBody, String>) value -> {
                 String body = value.string();
@@ -76,32 +77,8 @@ public final class CustomGsonConverterFactory extends Converter.Factory {
 
                 @Override
                 public RequestBody convert(String s) throws IOException {
-
-//                    if (s.contains("xinnuo")) {
-                    //这个是获取token的接口 不需要加密
+                    //对response 加解密，解析可以放在这里
                     return RequestBody.create(MEDIA_TYPE, s);
-//                    }
-
-
-//                    Date date = new Date();
-//                    String transId = TimeUtils.YYYYMMDDHHMMSS_NUMBER.get().format(date) + CommonTools.getSixRandomNo();
-//                    try {
-//                        while (transIds.contains(date.getTime() + transId)) {
-//                            Logger.d("-------------------鉴权码重复-------------------");
-//                            date = new Date();
-//                            transId = TimeUtils.YYYYMMDDHHMMSS_NUMBER.get().format(date) + CommonTools.getSixRandomNo();
-//                        }
-//                        if (transIds.size() >= 40) {
-//                            transIds.remove(0);
-//                        }
-//                        transIds.add(date.getTime() + transId);
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                    //对请求加密
-//                    String encryptJson = Aes.aesEncrypt(s, transId.substring(transId.length() - 16));
-//
-//                    return RequestBody.create(MEDIA_TYPE, encryptJson);
                 }
             };
         } else {

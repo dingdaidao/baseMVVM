@@ -1,14 +1,21 @@
 package com.example.commonlib.baserx;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.commonlib.config.Global;
+import com.example.commonlib.util.ActivityManager;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -36,39 +43,6 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class RxUtils {
     private static final int DISPLAYONCE = 1;
-/*
-
-    */
-/**
-     * Activity里面统一Observable处理
-     *
-     * @param activity     BaseActivity对象
-     * @param observable   需要耗时操作的Observable
-     * @param isNeedDialog 是否需要显示加载框
-     * @return 处理后的Observable
-     *//*
-
-    public static <T> Flowable<T> getActivityObservable(BaseActivity activity, Flowable<T> observable,
-                                                        boolean isNeedDialog) {
-        return observable.compose(rxSchedulerHelper(isNeedDialog ? activity : null));
-    }
-
-    */
-/**
-     * fragment里面统一Observable处理
-     *
-     * @param fragment     BaseFragment对象
-     * @param observable   需要耗时操作的Observable
-     * @param isNeedDialog 是否需要显示加载框
-     * @return 处理后的Observable
-     *//*
-
-    public static <T> Flowable<T> getFragmentObservable(BaseFragment fragment, Flowable<T> observable,
-                                                        boolean isNeedDialog) {
-        return observable.compose(rxSchedulerHelper(isNeedDialog ? fragment.getActivity() : null));
-    }
-*/
-
 
     /**
      * 统一线程处理
@@ -92,78 +66,25 @@ public class RxUtils {
                 .observeOn(Schedulers.io());
     }
 
-/*
-    public static <T> FlowableTransformer<T, T> rxSchedulerHelperOnce(Activity activity, int flag) {    //compose简化线程
-        return upstream -> upstream.subscribeOn(Schedulers.io())
-                .doOnSubscribe(subscription -> {
-                    if (activity != null && Looper.myLooper() == Looper.getMainLooper()) {
-                        if (!DialogManager.getInstance().isShow()) {
-                            if (flag != DISPLAYONCE) {
-                                DialogManager.getInstance().createLoadingDialog(activity, activity.getString(R.string.common_onloading)).show();
-                            }
-                        }
-                    }
-                })
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread());
-    }*/
-
     public static Flowable<Integer> countDown(int count) {
         return Flowable.interval(1, TimeUnit.SECONDS)
                 .take(count + 1).map(aLong -> count - aLong.intValue());
     }
 
-    /*private static AllClickInvocationHandler invocationHandler = null;
+    public static void click(View v, Consumer<Object> onNext) {
+//        Consumer consumer;
+//        if (isNeedJudgeLogin != null && isNeedJudgeLogin.length > 0 && isNeedJudgeLogin[0]) {
+//            if (invocationHandler == null) {
+//                invocationHandler = new AllClickInvocationHandler();
+//            }
+//            consumer = (Consumer) invocationHandler.bind(onNext);
+//        } else {
+//            consumer = onNext;
+//        }
 
-    public static void click(View v, Consumer<Object> onNext, boolean... isNeedJudgeLogin) {
-        Consumer consumer;
-        if (isNeedJudgeLogin != null && isNeedJudgeLogin.length > 0 && isNeedJudgeLogin[0]) {
-            if (invocationHandler == null) {
-                invocationHandler = new AllClickInvocationHandler();
-            }
-            consumer = (Consumer) invocationHandler.bind(onNext);
-        } else {
-            consumer = onNext;
-        }
         RxView.clicks(v).throttleFirst(1, TimeUnit.SECONDS)
-                .subscribe(consumer);
+                .subscribe(onNext);
     }
-
-    public static void longClick(View v, Consumer<Object> onNext) {
-        RxView.longClicks(v).subscribe(onNext);
-    }
-
-    private static class AllClickInvocationHandler implements InvocationHandler {
-
-        private Object object = null;
-
-        public Object bind(Object obj) {
-            object = obj;
-            return Proxy.newProxyInstance(obj.getClass().getClassLoader(), obj.getClass().getInterfaces(), this);
-        }
-
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-           if (Global.isLogin) {
-                return method.invoke(object, args);
-            } else {
-                Activity topActivity = ActivityManager.getInstance().getTopActivity();
-                Context context;
-                Intent intent = new Intent();
-                if (topActivity == null) {
-                    context = Global.application;
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                } else {
-                    context = topActivity;
-                }
-                intent.setClassName(context, Global.loginActivity);
-                if (intent.resolveActivity(context.getPackageManager()) != null) {
-                    context.startActivity(intent);
-                }
-            }
-            return null;
-        }
-    }*/
 
     public static Observable<Boolean> meetMultiConditionDo(Function<Object[], Boolean> combiner, TextView... tvs) {
         if (tvs != null && tvs.length > 0) {
@@ -181,10 +102,11 @@ public class RxUtils {
     private static Disposable mDisposable;
 
     /**
-     * milliseconds毫秒后执行next操作
+     * milliseconds毫秒后执行next操作(注意回收mDisposable)
      *
      * @param milliseconds
      * @param next
+     * @return mDisposable
      */
     public static Disposable timer(long milliseconds, final IRxNext next) {
         final Disposable[] disposable = new Disposable[1];
@@ -220,10 +142,11 @@ public class RxUtils {
     }
 
     /**
-     * 每隔milliseconds毫秒后执行next操作
+     * 每隔milliseconds毫秒后执行next操作(注意回收mDisposable)
      *
      * @param milliseconds
      * @param next
+     * @return mDisposable
      */
     public static Disposable interval(long milliseconds, final IRxNext next) {
         final Disposable[] disposable = new Disposable[1];
@@ -257,13 +180,13 @@ public class RxUtils {
     }
 
     /**
-     * 每隔milliseconds毫秒后执行next操作
+     * 每隔milliseconds毫秒后执行next操作(注意回收mDisposable)
      *
      * @param hour
      * @param minute
      * @param second
      * @param next
-     * @return
+     * @return 注意回收mDisposable
      */
     public static Disposable interval(int hour, int minute, int second, final IRxNext next) {
         final Disposable[] disposable = new Disposable[1];
@@ -347,21 +270,5 @@ public class RxUtils {
     public static void longClick(View v, Consumer<Object> onNext) {
         RxView.longClicks(v).subscribe(onNext);
     }
-
-
-//    public static void click(View v, Consumer<Object> onNext, boolean... isNeedJudgeLogin) {
-//        Consumer consumer;
-//        if (isNeedJudgeLogin != null && isNeedJudgeLogin.length > 0 && isNeedJudgeLogin[0]) {
-//            if (invocationHandler == null) {
-//                invocationHandler = new AllClickInvocationHandler();
-//            }
-//            consumer = (Consumer) invocationHandler.bind(onNext);
-//        } else {
-//            consumer = onNext;
-//        }
-//        RxView.clicks(v).throttleFirst(1, TimeUnit.SECONDS)
-//                .subscribe(consumer);
-//    }
-
 
 }

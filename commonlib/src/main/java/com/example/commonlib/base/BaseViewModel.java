@@ -8,13 +8,18 @@ import android.support.annotation.NonNull;
 import com.example.commonlib.config.Global;
 
 
+/**
+ * VM基类，注意VM中不要持有activity，fragment对象。
+ * 尽量使用livedata的订阅在activity，fragment中做操作
+ * 或者使用Rxbus
+ */
 public class BaseViewModel extends AndroidViewModel {
     /**
      * 网络是否可用
      */
     protected MutableLiveData<Boolean> isNetworkAvailable = new MutableLiveData<>();
     /**
-     * 页面无数据
+     * 页面无数据显示
      */
     protected MutableLiveData<Boolean> isNoData = new MutableLiveData<>();
 

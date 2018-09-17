@@ -32,6 +32,4 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':commonlib')
-    /*因使用dataBinding { enabled true } 会导入support-core 26.1.0 ,再次依赖appcompat把support升级至27.1.1*/
-//    implementation rootProject.ext.dependencies["appcompat-v7"]
 }

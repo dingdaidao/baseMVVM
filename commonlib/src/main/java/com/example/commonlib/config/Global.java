@@ -5,4 +5,7 @@ import android.app.Application;
 public class Global {
     public static Application application;
     public static String urlApi;
+
+
+    public static String baseURL;
 }

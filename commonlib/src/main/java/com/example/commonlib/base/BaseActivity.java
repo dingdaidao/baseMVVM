@@ -29,9 +29,9 @@ import io.reactivex.functions.Consumer;
 
 
 /**
- * Created by goldze on 2017/6/15.
  * 一个拥有DataBinding框架的基Activity
- * 这里根据项目业务可以换成你自己熟悉的BaseActivity, 但是需要继承RxAppCompatActivity,方便LifecycleProvider管理生命周期
+ * 这里根据项目业务可以换成你自己熟悉的BaseActivity
+ * {RxAppCompatActivity}(需要RxLifecycle请继承RxAppCompatActivity,方便LifecycleProvider管理生命周期)
  */
 
 public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseViewModel> extends AppCompatActivity {
@@ -48,13 +48,9 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
         super.onCreate(savedInstanceState);
         //初始化号mviewmodel
         initViewDataBinding();
-
         initData();
-
         initViewObservable();
-//        CommonTools.hideBottomUIMenu(this);
         mViewModel.onCreate();
-
         mViewModel.registerRxBus();
         mDispose = RxBus.getDefault().take().subscribe(new Consumer<Event>() {
             @Override
@@ -64,11 +60,6 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
         });
         setNetworkBroadcast();
 
-    }
-
-    public boolean dealWithTimeOutBySelf() {
-
-        return false;
     }
 
     public boolean needBackTimer() {
@@ -99,6 +90,7 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
         mBinding = DataBindingUtil.setContentView(this, initContentView());
         mBinding.setVariable(initVariableId(), mViewModel = initViewModel());
         mBinding.executePendingBindings();
+        //liveData绑定activity，fragment生命周期
         mBinding.setLifecycleOwner(this);
     }
 
@@ -106,6 +98,7 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
     public void refreshLayout() {
         if (mViewModel != null) {
             mBinding.setVariable(initVariableId(), mViewModel);
+            mBinding.executePendingBindings();
         }
     }
 
@@ -119,7 +112,7 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
     /**
      * 初始化ViewModel的id
      *
-     * @return BR的id
+     * @return BR的id(根据对应xml文件 < data > < variable > name < / variable > < / data > 自动生成)
      */
     public abstract int initVariableId();
 
@@ -132,6 +125,9 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
 
     public abstract void initData();
 
+    /**
+     * 处理livedata的订阅方法
+     */
     public abstract void initViewObservable();
 
     /**
