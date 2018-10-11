@@ -18,7 +18,7 @@ import io.reactivex.functions.Consumer;
 
 
 /**
- * Created by goldze on 2017/6/15.
+ * Created by ding on 2017/6/15.
  */
 public abstract class BaseFragment<V extends ViewDataBinding, VM extends BaseViewModel> extends Fragment {
     protected V mBinding;
@@ -88,18 +88,6 @@ public abstract class BaseFragment<V extends ViewDataBinding, VM extends BaseVie
                 dealWithAction(event);
             }
         });
-    }
-
-
-    //需要自己而外理其他事情
-    public void dealWithTimeOut() {
-
-
-    }
-
-    //是否需要60s无操作返回
-    public boolean needBackTimer() {
-        return false;
     }
 
     protected abstract void commonLoad();

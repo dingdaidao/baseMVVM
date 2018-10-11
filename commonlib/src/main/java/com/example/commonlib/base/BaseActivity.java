@@ -52,18 +52,9 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
         initViewObservable();
         mViewModel.onCreate();
         mViewModel.registerRxBus();
-        mDispose = RxBus.getDefault().take().subscribe(new Consumer<Event>() {
-            @Override
-            public void accept(Event event) throws Exception {
-                dealWithAction(event);
-            }
-        });
+        mDispose = RxBus.getDefault().take().subscribe(event -> dealWithAction(event));
         setNetworkBroadcast();
 
-    }
-
-    public boolean needBackTimer() {
-        return false;
     }
 
     protected abstract void dealWithAction(Event event);
@@ -164,6 +155,9 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
 
     }
 
+    /**
+     * 显示加载框
+     */
     public void showLoadingDialog() {
         View view = LayoutInflater.from(this).inflate(R.layout.layout_loading_dialog, null);
         AVLoadingIndicatorView avLoadingIndicatorView = (AVLoadingIndicatorView) view.findViewById(R.id.AVLoadingIndicatorView);
@@ -183,6 +177,9 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
         avLoadingIndicatorView.show();
     }
 
+    /**
+     * 取消加载框
+     */
     public void dismissLoadingDialog() {
         if (mLoadingDialog != null && mLoadingDialog.isShowing())
             mLoadingDialog.dismiss();
